@@ -362,9 +362,9 @@ version, name);
 int
 main(int argc, char **argv)
 {
-	int addrtype = 0;
+	int addrtype = 60;
 	int scriptaddrtype = 5;
-	int privtype = 128;
+	int privtype = 188;
 	int pubkeytype;
 	enum vg_format format = VCF_PUBKEY;
 	int regex = 0;

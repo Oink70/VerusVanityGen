@@ -99,8 +99,8 @@ version, name);
 int
 main(int argc, char **argv)
 {
-	int addrtype = 0;
-	int privtype = 128;
+	int addrtype = 60;
+	int privtype = 188;
 	int regex = 0;
 	int caseinsensitive = 0;
 	int opt;
