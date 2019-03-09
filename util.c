@@ -38,7 +38,6 @@
 
 #include "pattern.h"
 #include "util.h"
-#include "sph_groestl.h"
 
 const char *vg_b58_alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 
@@ -103,8 +102,6 @@ vg_b58_encode_check(void *buf, size_t len, char *result)
 {
 	unsigned char hash1[32];
 	unsigned char hash2[32];
-	unsigned char groestlhash1[64];
-	unsigned char groestlhash2[64];
 
 	int d, p;
 
@@ -128,25 +125,10 @@ vg_b58_encode_check(void *buf, size_t len, char *result)
 	binres = (unsigned char*) malloc(brlen);
 	memcpy(binres, buf, len);
 
-	if(!GRSFlag)
-	{
-		SHA256(binres, len, hash1);
-		SHA256(hash1, sizeof(hash1), hash2);
-		memcpy(&binres[len], hash2, 4);
-	}
-	else
-	{
-		sph_groestl512_context ctx;
-		
-		sph_groestl512_init(&ctx);
-		sph_groestl512(&ctx, binres, len);
-		sph_groestl512_close(&ctx, groestlhash1);
-		
-		sph_groestl512_init(&ctx);
-		sph_groestl512(&ctx, groestlhash1, sizeof(groestlhash1));
-		sph_groestl512_close(&ctx, groestlhash2);
-		memcpy(&binres[len], groestlhash2, 4);
-	}
+
+	SHA256(binres, len, hash1);
+	SHA256(hash1, sizeof(hash1), hash2);
+	memcpy(&binres[len], hash2, 4);
 
 	BN_bin2bn(binres, len + 4, bn);
 
@@ -188,8 +170,6 @@ vg_b58_decode_check(const char *input, void *buf, size_t len)
 	BIGNUM *bn, *bnw, *bnbase;
 	BN_CTX *bnctx;
 	unsigned char hash1[32], hash2[32];
-	unsigned char groestlhash1[64];
-	unsigned char groestlhash2[64];
 	int zpfx;
 	int res = 0;
 
@@ -236,28 +216,10 @@ vg_b58_decode_check(const char *input, void *buf, size_t len)
 	/* Check the hash code */
 	l -= 4;
 
-	if(!GRSFlag)
-	{
-		SHA256(xbuf, l, hash1);
-		SHA256(hash1, sizeof(hash1), hash2);
-		if (memcmp(hash2, xbuf + l, 4))
-			goto out;
-	}
-	else
-	{
-		sph_groestl512_context ctx;
-		
-		sph_groestl512_init(&ctx);
-		sph_groestl512(&ctx, xbuf, l);
-		sph_groestl512_close(&ctx, groestlhash1);
-		
-		sph_groestl512_init(&ctx);
-		sph_groestl512(&ctx, groestlhash1, sizeof(groestlhash1));
-		sph_groestl512_close(&ctx, groestlhash2);
-
-		if (memcmp(groestlhash2, xbuf + l, 4))
-			goto out;
-	}
+	SHA256(xbuf, l, hash1);
+	SHA256(hash1, sizeof(hash1), hash2);
+	if (memcmp(hash2, xbuf + l, 4))
+		goto out;
 
 	/* Buffer verified */
 	if (len) {

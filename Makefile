@@ -1,6 +1,6 @@
 ## If compiling on mac, comment out LIBS and CFLAGS below, and use the MacOS ones below
 LIBS=-lpcre -lcrypto -lm -lpthread
-CFLAGS=-ggdb -O3 -Wall
+CFLAGS=-ggdb -O3 -Wall -static
 
 ## If compiling on a mac make sure you install and use homebrew and run the following command `brew install pcre pcre++`
 ## Uncomment lines below and run `make all` 
@@ -8,8 +8,8 @@ CFLAGS=-ggdb -O3 -Wall
 # INCPATHS=-I$(shell brew --prefix)/include -I$(shell brew --prefix openssl)/include
 # LIBPATHS=-L$(shell brew --prefix)/lib -L$(shell brew --prefix openssl)/lib
 # CFLAGS=-ggdb -O3 -Wall -Qunused-arguments $(INCPATHS) $(LIBPATHS)
-OBJS=vanitygen.o oclvanitygen.o oclvanityminer.o oclengine.o keyconv.o pattern.o util.o groestl.o
-PROGS=vanitygen keyconv oclvanitygen oclvanityminer
+OBJS=verusvanitygen.o oclverusvanitygen.o oclengine.o veruskeyconv.o pattern.o util.o
+PROGS=verusvanitygen veruskeyconv oclverusvanitygen
 
 PLATFORM=$(shell uname -s)
 ifeq ($(PLATFORM),Darwin)
@@ -24,20 +24,17 @@ else
 endif
 
 
-most: vanitygen keyconv
+most: verusvanitygen 
 
 all: $(PROGS)
 
-vanitygen: vanitygen.o pattern.o util.o groestl.o
+verusvanitygen: verusvanitygen.o pattern.o util.o
 	$(CC) $^ -o $@ $(CFLAGS) $(LIBS)
 
-oclvanitygen: oclvanitygen.o oclengine.o pattern.o util.o groestl.o
+oclverusvanitygen: oclverusvanitygen.o oclengine.o pattern.o util.o
 	$(CC) $^ -o $@ $(CFLAGS) $(LIBS) $(OPENCL_LIBS)
 
-oclvanityminer: oclvanityminer.o oclengine.o pattern.o util.o groestl.o
-	$(CC) $^ -o $@ $(CFLAGS) $(LIBS) $(OPENCL_LIBS) -lcurl
-
-keyconv: keyconv.o util.o groestl.o
+veruskeyconv: veruskeyconv.o util.o
 	$(CC) $^ -o $@ $(CFLAGS) $(LIBS)
 
 clean:
