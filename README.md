@@ -32,9 +32,6 @@ If you have an altcoin you would like to add please let me know.
 -----
 Getting Started  
 -----  
-**Download the latest binary from: https://github.com/exploitagency/vanitygen-plus/releases !**  
-Linux Binary (Compiled on 64bit Debian Testing)  
-Windows Binary (Compiled on Win10 64bit)  
 
 Extract the files,  
 open a terminal/command prompt,  
